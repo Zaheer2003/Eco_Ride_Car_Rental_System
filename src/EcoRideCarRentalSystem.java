@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern; // Necessary for robust validation
-import java.util.Locale;
-import java.util.function.Function;
 public class EcoRideCarRentalSystem {
 
     /* ===========================
@@ -215,86 +213,28 @@ public class EcoRideCarRentalSystem {
             this.driverFee = driverFee; // Assigned new field
         }
 
-        // You'll need this import if it's not already at the top of your file.
-
         public void display(double totalKmUsed, boolean driverAssigned) {
-
-            // Define the format for currency amounts (right-aligned, comma separation, 2 decimal places)
-            Locale sriLanka = new Locale("en", "LK");
-
-            // Helper function to format money consistently: LKR xx,xxx.xx
-            // The format specifier %,20.2f ensures right alignment over 20 chars, comma for thousands, and 2 decimal places.
-            Function<Double, String> formatMoney = amount ->
-                    String.format(sriLanka, "LKR %,20.2f", amount);
-
             System.out.println();
+            // This invoice border is kept as a single-line block (not requested to change)
+            System.out.println(CYAN + BOLD + "╭───────────────────── FINAL INVOICE ─────────────────────╮" + RESET);
+            System.out.printf("│ Invoice ID : %-30s│%n", invoiceId);
+            System.out.printf("│ Booking ID : %-30s│%n", bookingId);
+            System.out.printf("│ Total KM Used: %-25.0f km │%n", totalKmUsed);
+            System.out.println(GRAY + "├───────────────────────────────────────────────────┤" + RESET);
+            System.out.printf("│ Base Rental Fee: LKR %-25.2f│%n", basePrice);
+            System.out.printf("│ Extra KM Charge: LKR %-25.2f│%n", extraKmCharge);
 
-            // --- Invoice Border Constants (Total Width 74) ---
-            final String INVOICE_H_LINE = "══════════════════════════════════════════════════════════════════════"; // 70 chars
-            final String DOUBLE_TOP_BORDER = CYAN + BOLD + "╔" + INVOICE_H_LINE + "╗" + RESET;
-            final String DOUBLE_DIVIDER = GRAY + "╠" + INVOICE_H_LINE + "╣" + RESET;
-            final String DOUBLE_FOOTER = CYAN + BOLD + "╚" + INVOICE_H_LINE + "╝" + RESET;
-
-            // --- 1. HEADER & METADATA ---
-            System.out.println(DOUBLE_TOP_BORDER);
-            // Title Line - Fixed width ensures centering
-            System.out.println(String.format("║ %-70s            ║", CYAN + BOLD + "           🧾 FINAL INVOICE & BREAKDOWN 🧾" + RESET));
-            System.out.println(DOUBLE_DIVIDER);
-
-            // Row 1: Invoice ID & Booking ID
-            System.out.printf("║ Invoice ID: %-15s |        Booking ID: %-18s  ║%n", invoiceId, bookingId);
-
-            // Row 2: KM Used & Tax Rate
-            System.out.printf("║ Total KM Used: %-3.0f km       |        Rental Tax Rate: %-14s ║%n", totalKmUsed, "15.00%");
-            System.out.println(DOUBLE_DIVIDER);
-
-            // --- 2. BASE CHARGES AND ADDITIONS (+) ---
-            System.out.println(String.format("║ %-80s  ║", YELLOW + BOLD + "BASE CHARGES AND ADDITIONS (+)" + RESET));
-
-            // Base Rental Fee - FIX: Separate print calls for left and right
-            System.out.printf("║ Base Rental Fee: %-20s", "");
-            System.out.println(WHITE + String.format("%20s", formatMoney.apply(basePrice)) + RESET + "        ║");
-
-            // Driver Service Fee (If applicable) - FIX: Separate print calls
+            // New: Display Driver Service Fee if applicable
             if (driverAssigned) {
-                System.out.printf("║ Driver Service Fee: %-17s", "");
-                System.out.println(WHITE + String.format("%20s", formatMoney.apply(driverFee)) + RESET + "        ║");
+                System.out.printf("│ Driver Service Fee: LKR %-24.2f│%n", driverFee);
             }
 
-            // Extra KM Charge (Highlighted RED) - FIX: Separate print calls
-            System.out.printf("║ Extra KM Charge: %-20s", "");
-            System.out.println(RED + String.format("%20s", formatMoney.apply(extraKmCharge)) + RESET + "        ║");
-
-            System.out.println(DOUBLE_DIVIDER);
-
-            // --- 3. DEDUCTIONS (-) ---
-            System.out.println(String.format("║ %-81s ║", YELLOW + BOLD + "DEDUCTIONS (-)" + RESET));
-
-            // 7+ Day Discount - FIX: Separate print calls
-            String formattedDiscount = "(" + formatMoney.apply(discount) + ")";
-            System.out.printf("║ 7+ Day Discount (10%%): %-13s", "");
-            System.out.println(GREEN + String.format("%23s", formattedDiscount) + RESET + "       ║");
-
-            // Deposit Deducted - FIX: Separate print calls
-            String formattedDeposit = "(" + formatMoney.apply(depositDeducted) + ")";
-            System.out.printf("║ Deposit Deducted: %-18s", "");
-            System.out.println(GRAY + String.format("%23s", formattedDeposit) + RESET + "       ║");
-
-            System.out.println(DOUBLE_DIVIDER);
-
-            // --- 4. TAX & FINAL AMOUNT ---
-            System.out.println(String.format("║ %-81s ║", WHITE + BOLD + "TAX AND FINAL PAYABLE" + RESET));
-
-            // Tax Amount - FIX: Separate print calls
-            System.out.printf("║ Tax (15%%): %-26s", "");
-            System.out.println(WHITE + String.format("%20s", formatMoney.apply(tax)) + RESET + "        ║");
-
-            // Final Payable Amount (Highlighted BOLD GREEN) - FIX: Separate print calls
-            System.out.printf("║ " + GREEN + BOLD + "FINAL PAYABLE AMOUNT: %-15s" + RESET, "");
-            System.out.println(GREEN + BOLD + String.format("%20s", formatMoney.apply(finalAmount)) + RESET + "        ║");
-
-            // --- 5. FOOTER ---
-            System.out.println(DOUBLE_FOOTER);
+            System.out.printf("│ 7+ Day Discount (10%%): LKR %-25.2f│%n", discount);
+            System.out.printf("│ Tax: LKR %-25.2f│%n", tax);
+            System.out.println(GRAY + "├───────────────────────────────────────────────────┤" + RESET);
+            System.out.printf("│ Deposit Deducted: LKR (%-25.2f)│%n", depositDeducted);
+            System.out.printf(GREEN + BOLD + "│ FINAL PAYABLE AMOUNT: LKR %-25.2f│" + RESET + "%n", finalAmount); // Using printf here for final amount
+            System.out.println(CYAN + BOLD + "╰───────────────────────────────────────────────────╯" + RESET);
             System.out.println();
         }
     }
@@ -329,7 +269,6 @@ public class EcoRideCarRentalSystem {
 
         public void setActualKm(double actualKm) { this.actualKm = actualKm; }
 
-        // Checks if cancellation is allowed (blocked within 2 days of pickup)
         public boolean canCancel() {
             if (status != BookingStatus.RESERVED) return false;
             long daysUntilBooking = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), bookingDate);
@@ -362,6 +301,7 @@ public class EcoRideCarRentalSystem {
             invoice.populate(base, extra, discount, tax, deposit, finalAmt, driverCharge);
             return finalAmt;
         }
+
 
         public void finalizeBooking() {
             vehicle.setStatus(VehicleStatus.RESERVED);
@@ -408,7 +348,6 @@ public class EcoRideCarRentalSystem {
         );
 
         public void start() {
-            populateInitialData();
             while (true) {
                 clear();
                 printDashboard(); // Use the updated, compact dashboard
@@ -436,52 +375,8 @@ public class EcoRideCarRentalSystem {
             }
         }
 
-        private void populateInitialData() {
-            // --- Dummy Data Population (1 for each entity) ---
-
-            // 1. Add Customer (Local) - C001
-            LocalCustomer c1 = new LocalCustomer("C001");
-            c1.name = "A. Silva";
-            c1.nic = "199012345678";
-            c1.drivingLicense = "L901234";
-            c1.contactNo = "0771234567";
-            c1.email = "asilva@mail.com";
-            customers.put(c1.getCustomerId(), c1);
-            custCounter++; // C002 next
-
-            // 2. Add Vehicle (Toyota Prius, Compact Petrol package) - V001
-            PackageInfo pkg1 = packageOptions.get(0); // Compact Petrol
-            Vehicle v1 = new Vehicle("V001", "Toyota Prius", pkg1);
-            vehicles.put(v1.getCarId(), v1);
-            vehCounter++; // V002 next
-
-            // 3. Add Driver - D001
-            Driver d1 = new Driver("D001", "S. Perera", "D123456", "0719876543");
-            drivers.put(d1.getDriverId(), d1);
-            drvCounter++; // D002 next
-
-            // 4. Add Booking (Reserving V001 with D001) - B001
-            // Booking date 5 days from now to satisfy the 3-day advance rule.
-            LocalDate bookingDate = LocalDate.now().plusDays(5);
-            int rentalDays = 5;
-            double estimatedKm = 800.0;
-
-            Booking b1 = new Booking("B001", c1, v1, d1, bookingDate, rentalDays, estimatedKm);
-            b1.calculateFinalFee(); // Calculate fee and populate invoice
-            b1.finalizeBooking(); // Set vehicle/driver to RESERVED/ASSIGNED
-            bookings.put(b1.getBookingId(), b1);
-            bookingCounter++; // B002 next
-        }
-
-        /**
-         * REVISED METHOD: Creates a single, wide, perfectly aligned menu table
-         * with the main title integrated into the top section, using double borders.
-         * FIX: All internal horizontal and vertical dividers are now double-line (║ and ╬).
-         */
         private void printDashboard() {
             String time = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-
-            // Define double line UI elements for a large header (53 total width)
             final String DOUBLE_TOP_BORDER = WHITE + BOLD + "╔═════════════════════════════════════════════════════════════════════════════════╗" + RESET;
             final String DOUBLE_H_DIVIDER = WHITE + "╠═══════════════════════════════╦═════════════════════════════════════════════════╣" + RESET;
             final String DOUBLE_INTERNAL_DIVIDER = WHITE + "╠═══════════════════════════════╬═════════════════════════════════════════════════╣" + RESET;
@@ -490,10 +385,9 @@ public class EcoRideCarRentalSystem {
             // 1. Large Double-Bordered Header Block (81 content width)
             println(DOUBLE_TOP_BORDER);
 
-            // --- ECORIDE Block Logo Integration ---
-            // Line 1: Blank line (81 spaces) to replace the car emoji line
+            // --- ECORIDE Block Logo  ---
             println(WHITE + BOLD + "║" + RESET + "                                                                                 " + RESET + WHITE+"║");
-            printEcoRideBlockLogo(); // Line 2-9: The LARGER ECORIDE Block Logo
+            printEcoRideBlockLogo(); // The LARGER ECORIDE Block Logo
             println(WHITE + BOLD + "║" + RESET + "      " + WHITE + BOLD + "               C A R   R E N T A L   S Y S T E M" + RESET  + WHITE + BOLD + "                           ║" + RESET); // Line 10: Subtitle
             println(WHITE + BOLD + "║                                                                                 " + RESET + WHITE+ "║"); // Blank line for spacing
             // --- End Logo ---
@@ -501,13 +395,12 @@ public class EcoRideCarRentalSystem {
             // 2. Connector to the Menu Section
             println(DOUBLE_H_DIVIDER);
 
-            // 3. Menu/Status Headers (USES DOUBLE BORDERS ║)
+            // 3. Menu/Status Headers
             println(String.format(WHITE+"║ %-20s                 "  +         WHITE+    "    ║ %-26s  "                   + WHITE+"                            ║", CYAN+ BOLD +  "MAIN MENU" + RESET, BOLD  +  "SYSTEM STATUS" + RESET));
 
-            // FIX: Used DOUBLE_INTERNAL_DIVIDER
             println(DOUBLE_INTERNAL_DIVIDER);
 
-            // Menu Items & Counters (ROWS USE DOUBLE VERTICAL BORDER '║')
+            // Menu Items & Counters
             println(String.format(WHITE+"║ " + CYAN + BOLD + "1. Register Customer" + RESET + WHITE+"          ║ Total Customers: %-15d                ║", customers.size()));
             println(String.format(WHITE+"║ " + CYAN + BOLD + "2. Add New Vehicle" + RESET +WHITE+ "            ║ Vehicles Available: %-9d                   ║", availableVehiclesCount()));
             println(String.format(WHITE+"║ " + CYAN + BOLD + "3. Add New Driver" + RESET + WHITE+"             ║ Drivers Available: %-10d                   ║", availableDriversCount()));
@@ -527,23 +420,13 @@ public class EcoRideCarRentalSystem {
             println(DOUBLE_FOOTER);
         }
 
-        /**
-         * Custom block character logo for the ECORIDE title, now correctly centered
-         * with clean, consistent 6-block wide characters for all letters.
-         */
         private void printEcoRideBlockLogo() {
-            // Colors: GREEN for ECO, YELLOW for RIDE
             final String E_COLOR = GREEN + BOLD;
             final String R_COLOR = YELLOW + BOLD;
             final String BORDER = WHITE + BOLD + "║" + RESET;
-            final String PAD = "  "; // Character spacing between letters
-
-            // --- Alignment Correction: Total content width is 54 chars (7x6 + 6x2). Inner frame is 81 chars. (81-54=27). Use 13 left, 14 right. ---
-            final String LOGO_LEFT_SPACING = "             "; // 13 spaces
-            final String LOGO_RIGHT_SPACING = "              "; // 14 spaces
-            // -----------------------------------------------------------------------------------------------------------------------------------------
-
-            // Defines the Block Letters (6 blocks wide, 5 lines high)
+            final String PAD = "  ";
+            final String LOGO_LEFT_SPACING = "             ";
+            final String LOGO_RIGHT_SPACING = "              ";
 
             // E (6 wide)
             final String E_BLOCK = E_COLOR + "██████" + RESET;
@@ -613,7 +496,6 @@ public class EcoRideCarRentalSystem {
             // Line 5: E C O R I D E
             System.out.println(BORDER + LOGO_LEFT_SPACING + E_L5 + PAD + C_L5 + PAD + O_L5 + PAD + R_L5 + PAD + I_L5 + PAD + D_L5 + PAD + E2_L5 + LOGO_RIGHT_SPACING + BORDER);
         }
-
 
         /* ------------------------------------------------
            VALIDATION HELPERS
@@ -893,7 +775,6 @@ public class EcoRideCarRentalSystem {
             pause();
         }
 
-
         private void updateCustomerDetails() {
             println(CYAN + "\n[10. Update Customer Details]" + RESET);
             String custId = read("Enter Customer ID (Cxxx): ").toUpperCase();
@@ -1022,7 +903,6 @@ public class EcoRideCarRentalSystem {
             System.out.println(WHITE + BOLD + "╚══════════╩══════════╩══════════╩════════════╩════════╩══════════╩══════════╝" + RESET);
             pause();
         }
-
 
         private void exitApp() {
             println(RED + "\nGoodbye! Thank you for using the EcoRide Car Rental System." + RESET);
